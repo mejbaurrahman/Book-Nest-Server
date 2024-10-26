@@ -1,4 +1,5 @@
 const express = require("express");
+const { ObjectId } = require("mongodb");
 
 const app = express();
 
@@ -25,12 +26,57 @@ async function run() {
     await client.connect();
     const database = client.db("book-nest");
     const users = database.collection("users");
+    const categories = database.collection("categories");
+    const products = database.collection("products");
+    //category part
+    app.post("/categories", async (req, res) => {
+      const { category } = req.body;
+      try {
+        const newCategory = await categories.insertOne({ category: category });
+        res.status(201).json({
+          message: "Category added successfully",
+          category: newCategory,
+        });
+      } catch (error) {
+        console.error("Error adding category:", error);
+        res.status(500).json({ message: "Error adding category", error });
+      }
+    });
 
+    app.get("/categories", async (req, res) => {
+      const result = await categories.find({}).toArray();
+      res.json(result);
+    });
+    // products
+    app.post("/products", async (req, res) => {
+      const data = req.body;
+      console.log(data);
+      const result = await products.insertOne(data);
+      res.send(result);
+    });
+    app.get("/products", async (req, res) => {
+      const result = await products.find({}).toArray();
+      res.json(result);
+    });
+    app.get("/products/:_id", async (req, res) => {
+      // Convert id to ObjectId if you’re using MongoDB’s _id
+      const id = req.params._id;
+      console.log(id);
+      const result = await products.findOne({
+        _id: new ObjectId(id),
+      });
+      res.json(result);
+    });
+    // user part
     app.post("/users", async (req, res) => {
       const data = req.body;
       console.log(data);
       const result = await users.insertOne(data);
       res.send(result);
+    });
+    app.get("/allUsers", async (req, res) => {
+      const result = await users.find({}).toArray();
+      res.json(result);
     });
     app.get("/users", async (req, res) => {
       const data = req.query.email;
