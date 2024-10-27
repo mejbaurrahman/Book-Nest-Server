@@ -28,6 +28,7 @@ async function run() {
     const users = database.collection("users");
     const categories = database.collection("categories");
     const products = database.collection("products");
+    const carts = database.collection("carts");
     //category part
     app.post("/categories", async (req, res) => {
       const { category } = req.body;
@@ -50,7 +51,7 @@ async function run() {
     // products
     app.post("/products", async (req, res) => {
       const data = req.body;
-      console.log(data);
+
       const result = await products.insertOne(data);
       res.send(result);
     });
@@ -61,7 +62,7 @@ async function run() {
     app.get("/products/:_id", async (req, res) => {
       // Convert id to ObjectId if you’re using MongoDB’s _id
       const id = req.params._id;
-      console.log(id);
+
       const result = await products.findOne({
         _id: new ObjectId(id),
       });
@@ -84,6 +85,47 @@ async function run() {
 
       const result = await users.findOne(query);
 
+      res.json(result);
+    });
+    app.get("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await users.findOne({ _id: new ObjectId(id) });
+      res.json(result);
+    });
+    app.patch("/users/:email", async (req, res) => {
+      const { email } = req.params;
+      const updates = req.body;
+      console.log(updates);
+      const result = await users.updateOne({ email: email }, { $set: updates });
+
+      res.json(result);
+    });
+    app.patch("/user/:_id", async (req, res) => {
+      const { _id } = req.params;
+      const updates = req.body;
+      console.log(updates);
+      const result = await users.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: updates }
+      );
+
+      res.json(result);
+    });
+    app.post("/carts", async (req, res) => {
+      const data = req.body;
+
+      const result = await carts.insertOne(data);
+      res.send(result);
+    });
+    app.get("/carts/:email", async (req, res) => {
+      // Convert id to ObjectId if you’re using MongoDB’s _id
+      const email = req.params.email;
+
+      const result = await carts
+        .find({
+          email: email,
+        })
+        .toArray();
       res.json(result);
     });
   } finally {
