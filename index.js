@@ -59,6 +59,11 @@ async function run() {
       const result = await products.find({}).toArray();
       res.json(result);
     });
+    app.delete("/products/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await products.deleteOne({ _id: new ObjectId(id) });
+      res.json(result);
+    });
     app.get("/products/:_id", async (req, res) => {
       // Convert id to ObjectId if you’re using MongoDB’s _id
       const id = req.params._id;
@@ -68,10 +73,22 @@ async function run() {
       });
       res.json(result);
     });
+
+    app.patch("/products/:_id", async (req, res) => {
+      const { _id } = req.params;
+      const updates = req.body;
+
+      const result = await products.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: updates }
+      );
+
+      res.json(result);
+    });
     // user part
     app.post("/users", async (req, res) => {
       const data = req.body;
-      console.log(data);
+
       const result = await users.insertOne(data);
       res.send(result);
     });
