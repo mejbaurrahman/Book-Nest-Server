@@ -48,6 +48,11 @@ async function run() {
       const result = await categories.find({}).toArray();
       res.json(result);
     });
+    app.get("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await categories.findOne({ _id: new ObjectId(id) });
+      res.json(result);
+    });
     // products
     app.post("/products", async (req, res) => {
       const data = req.body;
@@ -62,6 +67,11 @@ async function run() {
     app.delete("/products/:id", async (req, res) => {
       const { id } = req.params;
       const result = await products.deleteOne({ _id: new ObjectId(id) });
+      res.json(result);
+    });
+    app.delete("/categories/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await categories.deleteOne({ _id: new ObjectId(id) });
       res.json(result);
     });
     app.get("/products/:_id", async (req, res) => {
@@ -79,6 +89,17 @@ async function run() {
       const updates = req.body;
 
       const result = await products.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: updates }
+      );
+
+      res.json(result);
+    });
+    app.patch("/categories/:_id", async (req, res) => {
+      const { _id } = req.params;
+      const updates = req.body;
+
+      const result = await categories.updateOne(
         { _id: new ObjectId(_id) },
         { $set: updates }
       );
